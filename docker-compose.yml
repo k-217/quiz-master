@@ -1,0 +1,38 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/app
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+  celery:
+    build: ./backend
+    command: /myvenv/bin/celery -A app.celery_worker.celery worker --loglevel=info
+    depends_on:
+      - backend
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+  celery-beat:
+    build: ./backend
+    command: /myvenv/bin/celery -A app.celery_worker.celery beat --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
