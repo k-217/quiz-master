@@ -1,4 +1,4 @@
-# quiz-master-2
+# Quiz Master
 
 
 ## Description
